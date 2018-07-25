@@ -6,8 +6,8 @@
 // Sets default values
 AEventSystem::AEventSystem()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 	Singleton<AEventSystem>::Instance().SetData(this);
 } 
 
@@ -21,6 +21,7 @@ AEventSystem::~AEventSystem()
 void AEventSystem::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	//AEventSystem::Instance = this;
 }
 
@@ -28,10 +29,35 @@ void AEventSystem::BeginPlay()
 void AEventSystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	for (auto pair : EventsMap)
+	{
+		auto key = pair.Key;
+		int count = pair.Value.Num();
+
+		while (pair.Value.Num() > 0)
+		{
+			count = pair.Value.Num();
+			auto Event = pair.Value.Pop();
+			Event->HandleEvent();
+			GLog->Log("Handle event");
+		}
+	}
+
+	EventsMap.Empty();
 } 
 
-void AEventSystem::AddEvent(UBaseEventObject Event)
+void AEventSystem::AddEvent(const UBaseEventObject* Event)
 {
+	UClass* Class = Event->GetClass();
+	bool contains = EventsMap.Contains(Class);
+
+	if (!contains) {
+		EventsMap.Add(Class, TArray<const UBaseEventObject*>());
+	}
+
+	EventsMap[Class].Push(Event);
+
 	GLog->Log("Add event");
 }
 

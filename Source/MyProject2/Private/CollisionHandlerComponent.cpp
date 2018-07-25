@@ -52,7 +52,10 @@ void UCollisionHandlerComponent::TriggerEnter(UPrimitiveComponent * HitComp, AAc
 	}
 
 	GLog->Log("Find character");
-	Singleton<AEventSystem>::GetInstance()->AddEvent(UBaseEventObject());
+	UIntEventObject* Event = NewObject<UIntEventObject>();
+	Event->SetValue(IntValue);
+
+	Singleton<AEventSystem>::GetInstance()->AddEvent(Event);
 	GetOwner()->Destroy(false, false);
 }
 

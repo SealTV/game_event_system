@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Cube.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class MYPROJECT2_API ACube : public AActor
 {
 	GENERATED_BODY()
@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ACube();
 
+	UPROPERTY(EditAnywhere)
+	int IntValue;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -22,9 +25,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	UFUNCTION()
-	void OnTriggerEnter(class UPrimitiveComponent* OverlapComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 private:
 };

@@ -11,14 +11,47 @@ enum class EventType : uint8
 {
 	BaseEvent,
 	BoxDestroy,
-	BoxCreate
+	BoxCreate,
+	IntEvent
 };
 
-class MYPROJECT2_API UBaseEventObject
+UCLASS()
+class MYPROJECT2_API UBaseEventObject : public UObject
 {
+	GENERATED_BODY()
 public:
 	EventType GetType();
+
+	virtual void HandleEvent() const
+	{
+		GLog->Log("Base handle event");
+	}
 	
-private:
+protected:
 	EventType Type;	
 };
+
+UCLASS()
+class MYPROJECT2_API UIntEventObject : public UBaseEventObject
+{
+	GENERATED_BODY()
+public:
+	UIntEventObject()
+	{
+		Type = EventType::IntEvent;
+	}
+
+	void SetValue(int i) { value = i; }
+	int GetValue() { return value; }
+
+	void HandleEvent() const override
+	{
+		//auto IntEvent = Cast<UIntEventObject, UBaseEventObject>(Event);
+		GLog->Log(FString::FromInt(this->value));
+	} 
+
+private:
+
+	int value;
+};
+

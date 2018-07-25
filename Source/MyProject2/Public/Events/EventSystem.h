@@ -7,6 +7,9 @@
 #include "BaseEventObject.h"
 #include "EventSystem.generated.h"
 
+
+DECLARE_DELEGATE_OneParam(EventDelegate, const UBaseEventObject*)
+
 UCLASS()
 class MYPROJECT2_API AEventSystem : public AActor
 {
@@ -22,8 +25,13 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	void AddEvent(UBaseEventObject Event);
-};
+	void AddEvent(const UBaseEventObject* Event);
+
+private:
+
+	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsMap;
+	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsHandlers;
+}; 
 
 template<class T>
 class Singleton
@@ -31,7 +39,6 @@ class Singleton
 public:
 	static Singleton& Instance()
 	{
-		// согласно стандарту, этот код ленивый и потокобезопасный
 		static Singleton s;
 		return s;
 	}
@@ -50,11 +57,10 @@ public:
 private:
 	T * Data;
 
-	Singleton() {}  // конструктор недоступен
-	~Singleton() {} // и деструктор
+	Singleton() {} 
+	~Singleton() {}
 
-						 // необходимо также запретить копирование
-	Singleton(Singleton const&); // реализация не нужна
-	Singleton& operator= (Singleton const&);  // и тут
+	Singleton(Singleton const&);
+	Singleton& operator= (Singleton const&);  
 };
 
