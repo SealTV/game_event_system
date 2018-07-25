@@ -29,22 +29,17 @@ void AEventSystem::BeginPlay()
 void AEventSystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	for (auto pair : EventsMap)
 	{
 		auto key = pair.Key;
-		int count = pair.Value.Num();
 
-		while (pair.Value.Num() > 0)
+		while (EventsMap[key].Num() > 0)
 		{
-			count = pair.Value.Num();
-			auto Event = pair.Value.Pop();
+			auto Event = EventsMap[key].Pop();
 			Event->HandleEvent();
-			GLog->Log("Handle event");
 		}
 	}
-
-	EventsMap.Empty();
 } 
 
 void AEventSystem::AddEvent(const UBaseEventObject* Event)
