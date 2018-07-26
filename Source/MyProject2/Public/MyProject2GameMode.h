@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "BaseEventObject.h"
+
 #include "MyProject2GameMode.generated.h"
 
 /**
@@ -18,4 +20,10 @@ class AMyProject2GameMode : public AGameModeBase
 	GENERATED_BODY()
 public:
 	AMyProject2GameMode();
+
+private:
+
+	void EventHandler(const UBaseEventObject* Event);
+
+	EventDelegate EventHandlerDelegate;
 };

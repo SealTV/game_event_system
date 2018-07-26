@@ -8,31 +8,6 @@
 #include "EventSystem.generated.h"
 
 
-DECLARE_DELEGATE_OneParam(EventDelegate, const UBaseEventObject*)
-
-UCLASS()
-class MYPROJECT2_API AEventSystem : public AActor
-{
-	GENERATED_BODY()
-
-public:	
-	AEventSystem();
-	~AEventSystem();
-
-protected:
-	virtual void BeginPlay() override;
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-	void AddEvent(const UBaseEventObject* Event);
-
-private:
-
-	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsMap;
-	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsHandlers;
-}; 
-
 template<class T>
 class Singleton
 {
@@ -57,10 +32,67 @@ public:
 private:
 	T * Data;
 
-	Singleton() {} 
+	Singleton() {}
 	~Singleton() {}
 
 	Singleton(Singleton const&);
-	Singleton& operator= (Singleton const&);  
+	Singleton& operator= (Singleton const&);
 };
 
+
+UCLASS()
+class MYPROJECT2_API AEventSystem : public AActor
+{
+	GENERATED_BODY()
+
+public:	
+	AEventSystem();
+	~AEventSystem();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:	
+	virtual void Tick(float DeltaTime) override;
+
+	void HandleEvents(TMap<TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject *>> &map);
+
+	static void AddNewEvent(const UBaseEventObject* Event)
+	{
+		Singleton<AEventSystem>::GetInstance()->AddEvent(Event);
+	}
+
+
+	template <typename T>
+	void AddEvent(FSimpleEvent& Event)
+	{
+		if (!EventsStructsMap.Contains(Event::StaticStruct()))
+		{
+
+		}
+
+		EventsMap
+	}
+
+	static void AddHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+	{
+		Singleton<AEventSystem>::GetInstance()->Subscribe(Type, Handler);
+	}
+
+	static void RemoveHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+	{
+		Singleton<AEventSystem>::GetInstance()->Unsubscribe(Type, Handler);
+	}
+	 
+	void AddEvent(const UBaseEventObject* Event);
+
+	void Subscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
+	void Unsubscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
+
+private: 
+
+	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsMap;
+	TMap <TSubclassOf<UBaseEventObject>, TArray<const EventDelegate*>> EventsHandlers;
+
+	TMap <const UStruct*, TArray<const UBaseEventObject*>> EventsStructsMap;
+}; 

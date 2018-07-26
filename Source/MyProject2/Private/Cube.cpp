@@ -2,27 +2,22 @@
 
 #include "Cube.h"
 #include "Components/BoxComponent.h"
-#include "EventSystem.h"
-#include "BaseEvent.h"
+
 #include "MyProject2Character.h"
 
 // Sets default values
 ACube::ACube()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-// Called when the game starts or when spawned
 void ACube::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
 void ACube::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-} 
+}

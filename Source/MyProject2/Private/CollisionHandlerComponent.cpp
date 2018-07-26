@@ -4,8 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "MyProject2Character.h"
 
-#include "EventSystem.h"
-#include "BaseEvent.h"
+#include "BaseEventObject.h"
 
 #include "Runtime/Engine/Public/WorldCollision.h"
 
@@ -50,12 +49,12 @@ void UCollisionHandlerComponent::TriggerEnter(UPrimitiveComponent * HitComp, AAc
 	if (!IsValid(Character)) {
 		return;
 	}
-
+	 
 	GLog->Log("Find character");
 	UIntEventObject* Event = NewObject<UIntEventObject>();
 	Event->SetValue(IntValue);
+	Event->Emit();
 
-	Singleton<AEventSystem>::GetInstance()->AddEvent(Event);
 	GetOwner()->Destroy(false, false);
 }
 

@@ -29,18 +29,37 @@ void AEventSystem::BeginPlay()
 void AEventSystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	for (auto pair : EventsMap)
+
+	auto map = EventsMap;
+	EventsMap.Empty();
+	HandleEvents(map);
+}
+
+void AEventSystem::HandleEvents(TMap<TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> &map)
+{
+	for (auto pair : map)
 	{
 		auto key = pair.Key;
 
-		while (EventsMap[key].Num() > 0)
+		while (map[key].Num() > 0)
 		{
-			auto Event = EventsMap[key].Pop();
-			Event->HandleEvent();
+			auto Event = map[key].Pop();
+			if (EventsHandlers.Contains(key))
+			{
+				Event->HandleEvent();
+				auto handlers = EventsHandlers[key];
+				for (auto handler : handlers)
+				{
+					handler->Execute(Event);
+				}
+			}
+
+			//Event->C
 		}
 	}
-} 
+}
+
+
 
 void AEventSystem::AddEvent(const UBaseEventObject* Event)
 {
@@ -54,5 +73,27 @@ void AEventSystem::AddEvent(const UBaseEventObject* Event)
 	EventsMap[Class].Push(Event);
 
 	GLog->Log("Add event");
+}
+
+
+void AEventSystem::Subscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+{
+	if (!EventsHandlers.Contains(Type))
+	{ 
+		EventsHandlers.Add(Type, TArray<const EventDelegate*>()); 
+	}
+
+	EventsHandlers[Type].Add(Handler);
+}
+
+ 
+void AEventSystem::Unsubscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+{
+	if (!EventsHandlers.Contains(Type))
+	{
+		return;
+	}
+
+	EventsHandlers[Type].Remove(Handler);
 }
 
