@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "BaseEventObject.h"
+#include "BaseEvent.h"
 #include "EventSystem.generated.h"
 
 
@@ -26,8 +27,6 @@ public:
 	void SetData(T* data) {
 		Data = data;
 	}
-
-	T* GetData();
 
 private:
 	T * Data;
@@ -57,42 +56,52 @@ public:
 
 	void HandleEvents(TMap<TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject *>> &map);
 
-	static void AddNewEvent(const UBaseEventObject* Event)
-	{
-		Singleton<AEventSystem>::GetInstance()->AddEvent(Event);
-	}
-
+	static void AddEvent(const UBaseEventObject* Event);
 
 	template <typename T>
-	void AddEvent(FSimpleEvent& Event)
+	static void SetEvent(FSimpleEvent& Event)
 	{
-		if (!EventsStructsMap.Contains(Event::StaticStruct()))
-		{
-
-		}
-
-		EventsMap
+		AddEvent(Event::StaticStruct(), Event);
 	}
 
-	static void AddHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+	static void AddEvent(const UStruct* Type, FSimpleEvent& Event);
+
+	template <typename T>
+	static void Subscribe(const EventDelegate* Handler)
 	{
-		Singleton<AEventSystem>::GetInstance()->Subscribe(Type, Handler);
+		Singleton<AEventSystem>::GetInstance()->AddHandler(T::StaticClass(), Handler);
 	}
 
-	static void RemoveHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+	template <typename T>
+	static void Unsubscribe(const EventDelegate* Handler)
 	{
-		Singleton<AEventSystem>::GetInstance()->Unsubscribe(Type, Handler);
+		Singleton<AEventSystem>::GetInstance()->RemoveHandler(T::StaticClass(), Handler);
 	}
-	 
-	void AddEvent(const UBaseEventObject* Event);
 
-	void Subscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
-	void Unsubscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
+	static void Subscribe(const UStruct* Type, const EventDelegate* Handler)
+	{
+		Singleton<AEventSystem>::GetInstance()->AddHandler(Type, Handler);
+	}
+
+	static void Unsubscribe(const UStruct* Type, const EventDelegate* Handler)
+	{
+		Singleton<AEventSystem>::GetInstance()->RemoveHandler(Type, Handler);
+	}
 
 private: 
+
+	void SetEvent(const UStruct* Type, FSimpleEvent& Event);
+	void SetEvent(const UBaseEventObject* Event);
+
+	void AddHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
+	void RemoveHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
+
+	void AddHandler(const UStruct*, const EventDelegate* Handler);
+	void RemoveHandler(const UStruct*, const EventDelegate* Handler);
 
 	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsMap;
 	TMap <TSubclassOf<UBaseEventObject>, TArray<const EventDelegate*>> EventsHandlers;
 
-	TMap <const UStruct*, TArray<const UBaseEventObject*>> EventsStructsMap;
-}; 
+	TMap <const UStruct*, TArray<void*>> EventsStructsMap;
+	TMap <const UStruct*, TArray<const EventDelegate*>> EventsStuctHandlers;
+};

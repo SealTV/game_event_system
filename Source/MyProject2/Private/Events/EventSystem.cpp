@@ -52,16 +52,57 @@ void AEventSystem::HandleEvents(TMap<TSubclassOf<UBaseEventObject>, TArray<const
 				{
 					handler->Execute(Event);
 				}
+				
+				//Event->
+				
 			}
-
-			//Event->C
 		}
 	}
 }
 
+//void AEventSystem::HandleEvents(TMap<const UBaseEventObject*, TArray<const UBaseEventObject*>> &map)
+//{
+//	for (auto pair : map)
+//	{
+//		auto key = pair.Key;
+//
+//		while (map[key].Num() > 0)
+//		{
+//			auto Event = map[key].Pop();
+//			if (EventsHandlers.Contains(key))
+//			{
+//				Event->HandleEvent();
+//				auto handlers = EventsHandlers[key];
+//				for (auto handler : handlers)
+//				{
+//					handler->Execute(Event);
+//				}
+//			}
+//		}
+//	}
+//}
 
+void AEventSystem::AddEvent(const UBaseEventObject * Event)
+{
+	Singleton<AEventSystem>::GetInstance()->SetEvent(Event);
+}
 
-void AEventSystem::AddEvent(const UBaseEventObject* Event)
+void AEventSystem::AddEvent(const UStruct * Type, FSimpleEvent& Event)
+{
+	Singleton<AEventSystem>::GetInstance()->SetEvent(Type, Event);
+}
+
+void AEventSystem::SetEvent(const UStruct* Type, FSimpleEvent& Event)
+{
+	if (!EventsStructsMap.Contains(Type))
+	{
+		EventsStructsMap.Add(Type, TArray<void*>());
+	}
+	 
+	EventsStructsMap[Type].Push(& Event);
+}
+
+void AEventSystem::SetEvent(const UBaseEventObject* Event)
 {
 	UClass* Class = Event->GetClass();
 	bool contains = EventsMap.Contains(Class);
@@ -71,12 +112,9 @@ void AEventSystem::AddEvent(const UBaseEventObject* Event)
 	}
 
 	EventsMap[Class].Push(Event);
-
-	GLog->Log("Add event");
 }
 
-
-void AEventSystem::Subscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+void AEventSystem::AddHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
 {
 	if (!EventsHandlers.Contains(Type))
 	{ 
@@ -85,9 +123,8 @@ void AEventSystem::Subscribe(const TSubclassOf<UBaseEventObject>& Type, const Ev
 
 	EventsHandlers[Type].Add(Handler);
 }
-
  
-void AEventSystem::Unsubscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+void AEventSystem::RemoveHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
 {
 	if (!EventsHandlers.Contains(Type))
 	{
@@ -97,3 +134,22 @@ void AEventSystem::Unsubscribe(const TSubclassOf<UBaseEventObject>& Type, const 
 	EventsHandlers[Type].Remove(Handler);
 }
 
+void AEventSystem::AddHandler(const UStruct*  Type, const EventDelegate * Handler)
+{
+	if (!EventsStuctHandlers.Contains(Type))
+	{
+		EventsStuctHandlers.Add(Type, TArray<const EventDelegate*>());
+	}
+
+	EventsStuctHandlers[Type].Add(Handler);
+}
+
+void AEventSystem::RemoveHandler(const UStruct* Type, const EventDelegate * Handler)
+{
+	if (!EventsStuctHandlers.Contains(Type))
+	{
+		return;
+	}
+
+	EventsStuctHandlers[Type].Remove(Handler);
+}

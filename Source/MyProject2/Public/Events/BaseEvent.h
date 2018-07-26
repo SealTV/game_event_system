@@ -3,11 +3,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseEvent.generated.h"
 
 
-class MYPROJECT2_API BaseEvent123
+USTRUCT()
+struct MYPROJECT2_API FSimpleEvent
 {
-public:
-	BaseEvent123();
-	~BaseEvent123();
+	GENERATED_USTRUCT_BODY()
+
+
 };
+
+USTRUCT()
+struct MYPROJECT2_API FStringEvent : public FSimpleEvent
+{
+	GENERATED_USTRUCT_BODY()
+	FString Value;
+};
+
+class HelperClass
+{
+public: 
+	//template <typename T>
+	//static void Subscribe()
+	//{
+	//	//AEventSystem::Subscribe<T>(nullptr);
+	//}
+};
+

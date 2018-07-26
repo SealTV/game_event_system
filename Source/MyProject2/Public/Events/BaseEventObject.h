@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "EventSystem.h"
-
 #include "UObject/NoExportTypes.h"
 #include "BaseEventObject.generated.h"
 
@@ -17,6 +15,7 @@ enum class EventType : uint8
 	BoxCreate,
 	IntEvent
 };
+
 
 class UBaseEventObject;
 DECLARE_DELEGATE_OneParam(EventDelegate, const UBaseEventObject*)
@@ -40,46 +39,23 @@ public:
 
 	static void EmitEvent(const UBaseEventObject* Event);
 
-	static void Subscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
-	static void Unsubsctibe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
-	
+	static void Subscribe(const EventDelegate* Handler);
+	static void Unsubscribe(const EventDelegate* Handler);
+
 protected:
 	EventType Type;	
 };
+
 
 UCLASS()
 class MYPROJECT2_API UIntEventObject : public UBaseEventObject
 {
 	GENERATED_BODY()
-	
+
 public:
 	int GetValue() const { return value; }
 	void SetValue(int i) { value = i; }
-
 private:
 
 	int value;
 };
-
-USTRUCT()
-struct MYPROJECT2_API FSimpleEvent
-{
-	GENERATED_USTRUCT_BODY()
-};
-
-USTRUCT()
-struct MYPROJECT2_API FStringEvent : public FSimpleEvent
-{
-	GENERATED_USTRUCT_BODY()
-
-	FString Value;
-};
-
-
-//UCLASS()
-//class MYPROJECT2_API UEvents : UObject
-//{
-//	GENERATED_BODY()
-//public:
-//
-//};

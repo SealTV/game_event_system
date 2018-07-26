@@ -5,15 +5,15 @@
 
 void UBaseEventObject::EmitEvent(const UBaseEventObject * Event)
 {
-	AEventSystem::AddNewEvent(Event);
+	AEventSystem::AddEvent(Event);
 }
 
-void UBaseEventObject::Subscribe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
+void UBaseEventObject::Subscribe(const EventDelegate * Handler)
 {
-	AEventSystem::AddHandler(Type, Handler);
+	AEventSystem::Subscribe<UBaseEventObject>(Handler);
 }
 
-void UBaseEventObject::Unsubsctibe(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
-{ 
-	AEventSystem::RemoveHandler(Type, Handler);
+void UBaseEventObject::Unsubscribe(const EventDelegate * Handler)
+{
+	AEventSystem::Unsubscribe<UBaseEventObject>(Handler);
 }
