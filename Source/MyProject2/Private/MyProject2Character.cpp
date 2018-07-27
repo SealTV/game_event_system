@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
+#include "BaseEvent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -126,6 +127,7 @@ void AMyProject2Character::TouchStarted(const ETouchIndex::Type FingerIndex, con
 {
 	// Jump on any touch
 	Jump();
+	FStringEvent::Emit("jump");
 }
 
 void AMyProject2Character::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)

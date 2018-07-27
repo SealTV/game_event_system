@@ -30,121 +30,59 @@ void AEventSystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	auto map = EventsMap;
-	EventsMap.Empty();
+	auto map = EventsStructsMap;
+	EventsStructsMap.Empty();
 	HandleEvents(map);
 }
-
-void AEventSystem::HandleEvents(TMap<TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> &map)
+ 
+void AEventSystem::HandleEvents(TMap<const UStruct*, TArray<TSharedPtr<FBaseEvent>>> &Map)
 {
-	for (auto pair : map)
+	for (auto pair : Map)
 	{
 		auto key = pair.Key;
 
-		while (map[key].Num() > 0)
+		while (Map[key].Num() > 0)
 		{
-			auto Event = map[key].Pop();
-			if (EventsHandlers.Contains(key))
+			auto Event = Map[key].Pop(); 
+			if (EventsStuctHandlers.Contains(key))
 			{
-				Event->HandleEvent();
-				auto handlers = EventsHandlers[key];
-				for (auto handler : handlers)
-				{
-					handler->Execute(Event);
-				}
-				
-				//Event->
-				
+				CallHandlers(EventsStuctHandlers[key], Event);
 			}
+
+			//delete Event;
 		}
 	}
 }
 
-//void AEventSystem::HandleEvents(TMap<const UBaseEventObject*, TArray<const UBaseEventObject*>> &map)
-//{
-//	for (auto pair : map)
-//	{
-//		auto key = pair.Key;
-//
-//		while (map[key].Num() > 0)
-//		{
-//			auto Event = map[key].Pop();
-//			if (EventsHandlers.Contains(key))
-//			{
-//				Event->HandleEvent();
-//				auto handlers = EventsHandlers[key];
-//				for (auto handler : handlers)
-//				{
-//					handler->Execute(Event);
-//				}
-//			}
-//		}
-//	}
-//}
+void AEventSystem::CallHandlers(TArray<const FEventHandlerDelegate*> &Handlers, TSharedPtr<FBaseEvent> Event)
+{ 
+	for (auto Handler : Handlers)
+	{
+		Handler->ExecuteIfBound(Event);
+	}
+} 
 
-void AEventSystem::AddEvent(const UBaseEventObject * Event)
-{
-	Singleton<AEventSystem>::GetInstance()->SetEvent(Event);
-}
-
-void AEventSystem::AddEvent(const UStruct * Type, FSimpleEvent& Event)
-{
-	Singleton<AEventSystem>::GetInstance()->SetEvent(Type, Event);
-}
-
-void AEventSystem::SetEvent(const UStruct* Type, FSimpleEvent& Event)
+void AEventSystem::SetEvent(const UStruct* Type, TSharedPtr<FBaseEvent> Event)
 {
 	if (!EventsStructsMap.Contains(Type))
 	{
-		EventsStructsMap.Add(Type, TArray<void*>());
+		EventsStructsMap.Add(Type, TArray<TSharedPtr<FBaseEvent>>());
 	}
 	 
-	EventsStructsMap[Type].Push(& Event);
-}
+	EventsStructsMap[Type].Push(Event);
+} 
 
-void AEventSystem::SetEvent(const UBaseEventObject* Event)
-{
-	UClass* Class = Event->GetClass();
-	bool contains = EventsMap.Contains(Class);
-
-	if (!contains) {
-		EventsMap.Add(Class, TArray<const UBaseEventObject*>());
-	}
-
-	EventsMap[Class].Push(Event);
-}
-
-void AEventSystem::AddHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
-{
-	if (!EventsHandlers.Contains(Type))
-	{ 
-		EventsHandlers.Add(Type, TArray<const EventDelegate*>()); 
-	}
-
-	EventsHandlers[Type].Add(Handler);
-}
- 
-void AEventSystem::RemoveHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler)
-{
-	if (!EventsHandlers.Contains(Type))
-	{
-		return;
-	}
-
-	EventsHandlers[Type].Remove(Handler);
-}
-
-void AEventSystem::AddHandler(const UStruct*  Type, const EventDelegate * Handler)
+void AEventSystem::AddHandler(const UStruct*  Type, const FEventHandlerDelegate * Handler)
 {
 	if (!EventsStuctHandlers.Contains(Type))
 	{
-		EventsStuctHandlers.Add(Type, TArray<const EventDelegate*>());
+		EventsStuctHandlers.Add(Type, TArray<const FEventHandlerDelegate*>());
 	}
 
 	EventsStuctHandlers[Type].Add(Handler);
 }
 
-void AEventSystem::RemoveHandler(const UStruct* Type, const EventDelegate * Handler)
+void AEventSystem::RemoveHandler(const UStruct* Type, const FEventHandlerDelegate * Handler)
 {
 	if (!EventsStuctHandlers.Contains(Type))
 	{

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "BaseEventObject.h"
 #include "BaseEvent.h"
 #include "EventSystem.generated.h"
 
@@ -54,54 +53,32 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	void HandleEvents(TMap<TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject *>> &map);
-
-	static void AddEvent(const UBaseEventObject* Event);
-
-	template <typename T>
-	static void SetEvent(FSimpleEvent& Event)
+	static void AddEvent(const UStruct* Type, TSharedPtr<FBaseEvent> Event)
 	{
-		AddEvent(Event::StaticStruct(), Event);
+		Singleton<AEventSystem>::GetInstance()->SetEvent(Type, Event);
 	}
 
-	static void AddEvent(const UStruct* Type, FSimpleEvent& Event);
-
-	template <typename T>
-	static void Subscribe(const EventDelegate* Handler)
-	{
-		Singleton<AEventSystem>::GetInstance()->AddHandler(T::StaticClass(), Handler);
-	}
-
-	template <typename T>
-	static void Unsubscribe(const EventDelegate* Handler)
-	{
-		Singleton<AEventSystem>::GetInstance()->RemoveHandler(T::StaticClass(), Handler);
-	}
-
-	static void Subscribe(const UStruct* Type, const EventDelegate* Handler)
+	static void Subscribe(const UStruct* Type, const FEventHandlerDelegate* Handler)
 	{
 		Singleton<AEventSystem>::GetInstance()->AddHandler(Type, Handler);
 	}
 
-	static void Unsubscribe(const UStruct* Type, const EventDelegate* Handler)
+	static void Unsubscribe(const UStruct* Type, const FEventHandlerDelegate* Handler)
 	{
 		Singleton<AEventSystem>::GetInstance()->RemoveHandler(Type, Handler);
 	}
 
 private: 
+	void HandleEvents(TMap<const UStruct*, TArray<TSharedPtr<FBaseEvent>>> &Map);
 
-	void SetEvent(const UStruct* Type, FSimpleEvent& Event);
-	void SetEvent(const UBaseEventObject* Event);
+	void CallHandlers(TArray<const FEventHandlerDelegate*> &Handlers, TSharedPtr<FBaseEvent> Event);
 
-	void AddHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
-	void RemoveHandler(const TSubclassOf<UBaseEventObject>& Type, const EventDelegate* Handler);
+	void SetEvent(const UStruct* Type, TSharedPtr<FBaseEvent> Event);
 
-	void AddHandler(const UStruct*, const EventDelegate* Handler);
-	void RemoveHandler(const UStruct*, const EventDelegate* Handler);
+	void AddHandler(const UStruct*, const FEventHandlerDelegate* Handler);
+	void RemoveHandler(const UStruct*, const FEventHandlerDelegate* Handler);
 
-	TMap <TSubclassOf<UBaseEventObject>, TArray<const UBaseEventObject*>> EventsMap;
-	TMap <TSubclassOf<UBaseEventObject>, TArray<const EventDelegate*>> EventsHandlers;
+	TMap <const UStruct*, TArray<TSharedPtr<FBaseEvent>>> EventsStructsMap;
 
-	TMap <const UStruct*, TArray<void*>> EventsStructsMap;
-	TMap <const UStruct*, TArray<const EventDelegate*>> EventsStuctHandlers;
+	TMap <const UStruct*, TArray<const FEventHandlerDelegate*>> EventsStuctHandlers;
 };

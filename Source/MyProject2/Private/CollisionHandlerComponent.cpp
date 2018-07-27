@@ -3,9 +3,7 @@
 #include "CollisionHandlerComponent.h"
 #include "Components/BoxComponent.h"
 #include "MyProject2Character.h"
-
-#include "BaseEventObject.h"
-
+#include "BaseEvent.h"
 #include "Runtime/Engine/Public/WorldCollision.h"
 
 UCollisionHandlerComponent::UCollisionHandlerComponent()
@@ -50,10 +48,14 @@ void UCollisionHandlerComponent::TriggerEnter(UPrimitiveComponent * HitComp, AAc
 		return;
 	}
 	 
-	GLog->Log("Find character");
-	UIntEventObject* Event = NewObject<UIntEventObject>();
+	
+	FIntEvent::Emit(IntValue);
+	//FStringEvent::Emit("Collision");
+
+
+	/*UIntEventObject* Event = NewObject<UIntEventObject>();
 	Event->SetValue(IntValue);
-	Event->Emit();
+	Event->Emit();*/
 
 	GetOwner()->Destroy(false, false);
 }
