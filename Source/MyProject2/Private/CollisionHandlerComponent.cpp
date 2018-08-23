@@ -47,15 +47,9 @@ void UCollisionHandlerComponent::TriggerEnter(UPrimitiveComponent * HitComp, AAc
 	if (!IsValid(Character)) {
 		return;
 	}
-	 
 	
 	FIntEvent::Emit(IntValue);
-	//FStringEvent::Emit("Collision");
-
-
-	/*UIntEventObject* Event = NewObject<UIntEventObject>();
-	Event->SetValue(IntValue);
-	Event->Emit();*/
+	FStringEvent::Emit("Collision");
 
 	GetOwner()->Destroy(false, false);
 }

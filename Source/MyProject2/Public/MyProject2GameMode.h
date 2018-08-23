@@ -20,7 +20,7 @@ public:
 
 private:
 
-	void EventHandler(TSharedPtr<FBaseEvent> Event);
+	void EventHandler(TSharedPtr<FBaseEvent>& Event);
 
 	FEventHandlerDelegate Delegate;
 };
@@ -63,9 +63,7 @@ private:
 
 	FEventHandlerDelegate Delegate;
 
-	void Handler(TSharedPtr<FBaseEvent> Event)
+	void Handler(TSharedPtr<FBaseEvent>& Event)
 	{
-		const FStringEvent* StringEvent = reinterpret_cast<FStringEvent*>(Event.Get());
-		EventHandler(*StringEvent);
 	}
 };

@@ -21,8 +21,6 @@ AEventSystem::~AEventSystem()
 void AEventSystem::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	//AEventSystem::Instance = this;
 }
 
 // Called every frame
@@ -37,26 +35,24 @@ void AEventSystem::Tick(float DeltaTime)
  
 void AEventSystem::HandleEvents(TMap<const UStruct*, TArray<TSharedPtr<FBaseEvent>>> &Map)
 {
-	for (auto pair : Map)
+	for (TPair<const UStruct*, TArray<TSharedPtr<FBaseEvent>>>& pair : Map)
 	{
-		auto key = pair.Key;
+		const UStruct* key = pair.Key;
 
-		while (Map[key].Num() > 0)
+		while(Map[key].Num() > 0)
 		{
-			auto Event = Map[key].Pop(); 
+			TSharedPtr<FBaseEvent> Event = Map[key].Pop(); 
 			if (EventsStuctHandlers.Contains(key))
 			{
 				CallHandlers(EventsStuctHandlers[key], Event);
 			}
-
-			//delete Event;
 		}
 	}
 }
 
-void AEventSystem::CallHandlers(TArray<const FEventHandlerDelegate*> &Handlers, TSharedPtr<FBaseEvent> Event)
+void AEventSystem::CallHandlers(TArray<const FEventHandlerDelegate*> &Handlers, TSharedPtr<FBaseEvent>& Event)
 { 
-	for (auto Handler : Handlers)
+	for (const FEventHandlerDelegate* Handler : Handlers)
 	{
 		Handler->ExecuteIfBound(Event);
 	}

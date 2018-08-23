@@ -6,7 +6,7 @@
 #include "BaseEvent.generated.h"
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct MYPROJECT2_API FBaseEvent
 {
 	GENERATED_USTRUCT_BODY()
@@ -16,11 +16,10 @@ struct MYPROJECT2_API FBaseEvent
 	virtual void Emit();
 
 	template <typename TEvent>
-	static TSharedPtr<TEvent> Resotre(TSharedPtr<FBaseEvent> Event)
+	static TEvent* Resotre(FBaseEvent* Event)
 	{
-		return TSharedPtr<TEvent>(reinterpret_cast<TEvent*>(Event.Get()));
+		return reinterpret_cast<TEvent*>(Event);
 	}
-
 };
 
 USTRUCT(BlueprintType)
@@ -36,11 +35,6 @@ struct MYPROJECT2_API FIntEvent : public FBaseEvent
 		FIntEvent* Event = new FIntEvent();
 		Event->Value = value;
 		Event->Emit();
-	}
-
-	static TSharedPtr<FIntEvent> Resotre(TSharedPtr<FBaseEvent> Event)
-	{
-		return TSharedPtr<FIntEvent>(reinterpret_cast<FIntEvent*>(Event.Get()));
 	}
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -69,19 +63,13 @@ struct MYPROJECT2_API FStringEvent : public FBaseEvent
 };
 
 
-DECLARE_DELEGATE_OneParam(FEventHandlerDelegate, TSharedPtr<FBaseEvent>)
+DECLARE_DELEGATE_OneParam(FEventHandlerDelegate, TSharedPtr<FBaseEvent>&)
 
 UCLASS()
 class UEventsHelper : public UObject
 {
 	GENERATED_BODY()
 public: 
-
-	template <typename TEvent>
-	void HandleEvent(TSharedPtr<TEvent> Event)
-	{
-		TSharedPtr<TEvent> TEventPtr = StaticCastSharedPtr<TEvent, FBaseEvent>(Event);
-	}
 
 	template <typename TEvent>
 	static void Emit(TSharedPtr<TEvent> Event)

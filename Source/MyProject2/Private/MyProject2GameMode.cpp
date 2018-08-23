@@ -23,13 +23,10 @@ AMyProject2GameMode::AMyProject2GameMode()
 }
 
 
-void AMyProject2GameMode::EventHandler(TSharedPtr<FBaseEvent> Event)
+void AMyProject2GameMode::EventHandler(TSharedPtr<FBaseEvent>& Event)
 {
-	TSharedPtr<FIntEvent> v1 = FBaseEvent::Resotre<FIntEvent>(Event);
-/*
-	const FIntEvent* IntEvent = reinterpret_cast<FIntEvent*>(Event.Get());
-	int v = IntEvent->Value;
-	auto strValue = FString::FromInt((int32)v);*/
+	FIntEvent* v1 = FBaseEvent::Resotre<FIntEvent>(Event.Get());
+	GLog->Log(FString::FromInt(v1->Value));
 }
 
 void UStringEventHandler::EventHandler_Implementation(const FStringEvent& Event) const

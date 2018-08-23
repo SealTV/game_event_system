@@ -71,7 +71,7 @@ public:
 private: 
 	void HandleEvents(TMap<const UStruct*, TArray<TSharedPtr<FBaseEvent>>> &Map);
 
-	void CallHandlers(TArray<const FEventHandlerDelegate*> &Handlers, TSharedPtr<FBaseEvent> Event);
+	void CallHandlers(TArray<const FEventHandlerDelegate*> &Handlers, TSharedPtr<FBaseEvent>& Event);
 
 	void SetEvent(const UStruct* Type, TSharedPtr<FBaseEvent> Event);
 
